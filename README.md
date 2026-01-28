@@ -9,7 +9,7 @@ eMo is a multi-dimensional programming ecosystem designed to collapse the distan
 To install the entire eMo toolchain (SadSmile, HappyCry, and eMo Compiler) on any Linux, macOS, or WSL terminal:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/eMo/main/install_all.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Adrian-Myat-005/eMo/main/install_all.sh | bash
 ```
 
 ---
