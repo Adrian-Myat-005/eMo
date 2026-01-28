@@ -847,7 +847,7 @@ impl Interpreter {
                     Err("model.train expects a string path".to_string())
                 }
             },
-            (Value::Model { model_type, .. }, "model.save") => {
+            (Value::Model { model_type: _, .. }, "model.save") => {
                 if let Some(Value::String(path)) = args.get(0) {
                     println!("[MIND] Saving model to {}...", path);
                     Ok(Value::Null)

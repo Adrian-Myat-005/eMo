@@ -8,81 +8,149 @@ set -e
 C_BLUE='\033[0;34m'
 C_GREEN='\033[0;32m'
 C_RED='\033[0;31m'
+C_CYAN='\033[0;36m'
+C_YELLOW='\033[1;33m'
 C_NC='\033[0m'
+C_BOLD='\033[1m'
 
-# REPLACE THIS WITH YOUR USERNAME
+# CONFIG
 GITHUB_USER="Adrian-Myat-005"
 REPO_URL="https://github.com/$GITHUB_USER/eMo.git"
-
 INSTALL_DIR="$HOME/.emo"
 BIN_DIR="$INSTALL_DIR/bin"
 
-echo -e "${C_BLUE}Initializing eMo System Installation...${C_NC}"
+# UTILS: ANIMATION & PROGRESS
+draw_bar() {
+    # Usage: draw_bar <current_step> <total_steps> <msg>
+    local current=$1
+    local total=$2
+    local msg=$3
+    
+    # Calculate percentage
+    local percent=$(( 100 * current / total ))
+    local bar_len=20
+    local filled=$(( bar_len * percent / 100 ))
+    local empty=$(( bar_len - filled ))
 
-# 1. Check for Rust
-if ! command -v cargo &> /dev/null; then
-    echo -e "${C_RED}Rust not found.${C_NC} Installing Rust via rustup..."
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-    source $HOME/.cargo/env
-fi
+    # Construct bar
+    local bar_str=""
+    for ((i=0; i<filled; i++)); do bar_str+="█"; done
+    for ((i=0; i<empty; i++)); do bar_str+="░"; done
 
-# 2. Create Temp Workspace
-TEMP_DIR=$(mktemp -d)
-echo -e "Cloning repository to $TEMP_DIR..."
-git clone "$REPO_URL" "$TEMP_DIR" --quiet
+    # Color logic for HP
+    local color=$C_GREEN
+    if [ $percent -lt 30 ]; then color=$C_RED;
+    elif [ $percent -lt 70 ]; then color=$C_YELLOW;
+    fi
 
-# 3. Build & Install
-mkdir -p "$BIN_DIR"
+    # Clear line and print
+    printf "\r\033[K" # Clear line
+    printf "${C_BOLD}HP: [${color}%s${C_NC}${C_BOLD}] %3d%% ${C_NC} :: %s" "$bar_str" "$percent" "$msg"
+}
 
-echo "Building eMo Engines (this may take a few minutes)..."
-cd "$TEMP_DIR"
+spinner_pid=""
+start_spinner() {
+    set +m
+    {
+        local delay=0.1
+        local spinstr='|/-\'
+        while :; do
+            local temp=${spinstr#?}
+            printf " [%c] " "$spinstr"
+            local spinstr=$temp${spinstr%"$temp"}
+            sleep $delay
+            printf "\b\b\b\b\b"
+        done
+    } & 
+    spinner_pid=$!
+}
 
-# Build All in Workspace
-# This builds all members defined in root Cargo.toml
-cargo build --release --quiet
+stop_spinner() {
+    if [ -n "$spinner_pid" ]; then
+        kill "$spinner_pid" >/dev/null 2>&1
+        wait "$spinner_pid" >/dev/null 2>&1
+        printf "\b\b\b\b\b" # Clear spinner chars
+        spinner_pid=""
+    fi
+}
 
-echo "Installing binaries..."
+run_task() {
+    local cmd=$1
+    local step=$2
+    local total=$3
+    local label=$4
 
-# Helper function to install
-install_bin() {
-    SRC=$1
-    DEST=$2
-    if [ -f "$SRC" ]; then
-        cp "$SRC" "$DEST"
-        echo -e "  - Installed ${C_GREEN}$(basename $DEST)${C_NC}"
+    draw_bar "$step" "$total" "$label..."
+    start_spinner
+    
+    # Run command and capture error if any
+    if eval "$cmd" > /dev/null 2>&1; then
+        stop_spinner
     else
-        echo -e "${C_RED}Error: Binary not found at $SRC${C_NC}"
-        # Fallback check for nested targets (legacy support)
-        if [ -f "sadsmile/$SRC" ]; then cp "sadsmile/$SRC" "$DEST"; return; fi
-        if [ -f "happycry/$SRC" ]; then cp "happycry/$SRC" "$DEST"; return; fi
-        if [ -f "emo_compiler/$SRC" ]; then cp "emo_compiler/$SRC" "$DEST"; return; fi
+        stop_spinner
+        echo -e "\n${C_RED}❌ CRITICAL DAMAGE: Failed at '$label'${C_NC}"
+        echo "Command: $cmd"
         exit 1
     fi
 }
 
-install_bin "target/release/sadsmile" "$BIN_DIR/ss"
-install_bin "target/release/happy" "$BIN_DIR/happy"
-install_bin "target/release/emo_compiler" "$BIN_DIR/emo"
+# --- START ---
+clear
+echo -e "${C_BLUE}
+███████╗███╗   ███╗ ██████╗ 
+██╔════╝████╗ ████║██╔═══██╗
+█████╗  ██╔████╔██║██║   ██║
+██╔══╝  ██║╚██╔╝██║██║   ██║
+███████╗██║ ╚═╝ ██║╚██████╔╝
+╚══════╝╚═╝     ╚═╝ ╚═════╝ 
+${C_NC}"
+echo -e "${C_CYAN}Initializing System Link...${C_NC}\n"
 
-# 4. Finalize Path
+# STEPS
+TOTAL_STEPS=6
+
+# 1. RUST CHECK
+run_task "command -v cargo" 1 $TOTAL_STEPS "Checking Life Support (Rust)"
+
+# 2. CLONE
+TEMP_DIR=$(mktemp -d)
+run_task "git clone \"$REPO_URL\" \"$TEMP_DIR\" --quiet" 2 $TOTAL_STEPS "Downloading Neural Patterns (Clone)"
+
+# 3. BUILD
+cd "$TEMP_DIR"
+# SadSmile
+run_task "cargo build --release --manifest-path sadsmile/Cargo.toml --quiet" 3 $TOTAL_STEPS "Compiling Core Kernel (SadSmile)"
+# HappyCry
+run_task "cargo build --release --manifest-path happycry/Cargo.toml --quiet" 4 $TOTAL_STEPS "Synthesizing Dopamine (HappyCry)"
+# Compiler
+run_task "cargo build --release --manifest-path emo_compiler/Cargo.toml --quiet" 5 $TOTAL_STEPS "Engaging Logic Gates (eMo Compiler)"
+
+# INSTALL
+mkdir -p "$BIN_DIR"
+cp sadsmile/target/release/sadsmile "$BIN_DIR/ss"
+cp happycry/target/release/happy "$BIN_DIR/happy"
+cp emo_compiler/target/release/emo_compiler "$BIN_DIR/emo"
+
+# 4. PATH
 SHELL_CONFIG=""
 for f in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile"; do
-    if [ -f "$f" ]; then
-        SHELL_CONFIG="$f"
-        break
-    fi
+    if [ -f "$f" ]; then SHELL_CONFIG="$f"; break; fi
 done
 
 if [ -n "$SHELL_CONFIG" ]; then
     if ! grep -q "$BIN_DIR" "$SHELL_CONFIG"; then
-        echo -e "\n# eMo Ecosystem\nexport PATH=\"$BIN_DIR:\$PATH\"" >> "$SHELL_CONFIG"
+        echo >> "$SHELL_CONFIG"
+        echo "# eMo Ecosystem" >> "$SHELL_CONFIG"
+        echo "export PATH=\"$BIN_DIR:\$PATH\"" >> "$SHELL_CONFIG"
     fi
-    echo -e "${C_GREEN}Installation Successful!${C_NC}"
-    echo -e "Restart your terminal or run: ${C_BLUE}source $SHELL_CONFIG${C_NC}"
-else
-    echo -e "${C_GREEN}Installation Successful!${C_NC}"
-    echo -e "Add this to your PATH: ${C_BLUE}export PATH=\"$BIN_DIR:\$PATH\"${C_NC}"
 fi
 
-# 5. Cleanup
+# 5. CLEANUP
 rm -rf "$TEMP_DIR"
+
+# FINISH
+draw_bar $TOTAL_STEPS $TOTAL_STEPS "SYSTEM FULLY OPERATIONAL"
+echo -e "\n"
+echo -e "${C_GREEN}✅ Installation Complete.${C_NC}"
+echo -e "Restart your terminal or run: ${C_BLUE}source $SHELL_CONFIG${C_NC}"
+echo -e "Type ${C_YELLOW}ss${C_NC} to enter the system."
