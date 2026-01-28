@@ -10,7 +10,10 @@ C_GREEN='\033[0;32m'
 C_RED='\033[0;31m'
 C_NC='\033[0m'
 
-REPO_URL="https://github.com/Adrian-Myat-005/eMo.git"
+# REPLACE THIS WITH YOUR USERNAME
+GITHUB_USER="Adrian-Myat-005"
+REPO_URL="https://github.com/$GITHUB_USER/eMo.git"
+
 INSTALL_DIR="$HOME/.emo"
 BIN_DIR="$INSTALL_DIR/bin"
 
@@ -34,17 +37,32 @@ mkdir -p "$BIN_DIR"
 echo "Building eMo Engines (this may take a few minutes)..."
 cd "$TEMP_DIR"
 
-# Build SadSmile
-cargo build --release --manifest-path sadsmile/Cargo.toml --quiet
-cp sadsmile/target/release/sadsmile "$BIN_DIR/ss"
+# Build All in Workspace
+# This builds all members defined in root Cargo.toml
+cargo build --release --quiet
 
-# Build HappyCry
-cargo build --release --manifest-path happycry/Cargo.toml --quiet
-cp happycry/target/release/happy "$BIN_DIR/happy"
+echo "Installing binaries..."
 
-# Build eMo Compiler
-cargo build --release --manifest-path emo_compiler/Cargo.toml --quiet
-cp emo_compiler/target/release/emo_compiler "$BIN_DIR/emo"
+# Helper function to install
+install_bin() {
+    SRC=$1
+    DEST=$2
+    if [ -f "$SRC" ]; then
+        cp "$SRC" "$DEST"
+        echo -e "  - Installed ${C_GREEN}$(basename $DEST)${C_NC}"
+    else
+        echo -e "${C_RED}Error: Binary not found at $SRC${C_NC}"
+        # Fallback check for nested targets (legacy support)
+        if [ -f "sadsmile/$SRC" ]; then cp "sadsmile/$SRC" "$DEST"; return; fi
+        if [ -f "happycry/$SRC" ]; then cp "happycry/$SRC" "$DEST"; return; fi
+        if [ -f "emo_compiler/$SRC" ]; then cp "emo_compiler/$SRC" "$DEST"; return; fi
+        exit 1
+    fi
+}
+
+install_bin "target/release/sadsmile" "$BIN_DIR/ss"
+install_bin "target/release/happy" "$BIN_DIR/happy"
+install_bin "target/release/emo_compiler" "$BIN_DIR/emo"
 
 # 4. Finalize Path
 SHELL_CONFIG=""
