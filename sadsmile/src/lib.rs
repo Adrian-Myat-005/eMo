@@ -48,7 +48,7 @@ pub fn execute_script(filename: &str) {
     }
 }
 
-pub fn run_repl() {
+pub fn run_repl(is_nexus: bool) {
     let mut backpack = Backpack::new();
     let guardian = Guardian::new(false);
 
@@ -64,11 +64,18 @@ pub fn run_repl() {
         let _ = editor.load_history(path);
     }
 
-    // Boot sequence handles the welcome message now.
+    if !is_nexus {
+        println!("SadSmile Shell v1.0. Type 'exit' to quit.");
+    }
 
     loop {
-        let pwd = std::env::current_dir().unwrap_or_default().display().to_string();
-        let prompt_str = interface::prompt(&pwd);
+        let prompt_str = if is_nexus {
+            let pwd = std::env::current_dir().unwrap_or_default().display().to_string();
+            interface::prompt(&pwd)
+        } else {
+            "ss$ ".to_string()
+        };
+
         let readline = editor.readline(&prompt_str);
 
         match readline {

@@ -127,8 +127,12 @@ run_task "cargo build --release --manifest-path emo_compiler/Cargo.toml --quiet"
 
 # INSTALL
 mkdir -p "$BIN_DIR"
-cp sadsmile/target/release/sadsmile "$BIN_DIR/ss"
-cp happycry/target/release/happy "$BIN_DIR/happy"
+install_bin "target/release/sadsmile" "$BIN_DIR/ss"
+# Create Nexus (Visual Mode)
+cp "$BIN_DIR/ss" "$BIN_DIR/nexus"
+echo -e "  - Installed ${C_GREEN}nexus${C_NC} (Visual Environment)"
+
+install_bin "target/release/happy" "$BIN_DIR/happy"
 cp emo_compiler/target/release/emo_compiler "$BIN_DIR/emo"
 
 # 4. PATH
@@ -153,4 +157,5 @@ draw_bar $TOTAL_STEPS $TOTAL_STEPS "SYSTEM FULLY OPERATIONAL"
 echo -e "\n"
 echo -e "${C_GREEN}✅ Installation Complete.${C_NC}"
 echo -e "Restart your terminal or run: ${C_BLUE}source $SHELL_CONFIG${C_NC}"
-echo -e "Type ${C_YELLOW}ss${C_NC} to enter the system."
+echo -e "Type ${C_YELLOW}ss${C_NC} for standard shell."
+echo -e "Type ${C_YELLOW}nexus${C_NC} to enter the Full eMo Environment."
