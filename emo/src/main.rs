@@ -46,7 +46,7 @@ fn main() {
                 handle_run(file);
             }
             Commands::Shell => {
-                sadsmile::run_repl();
+                sadsmile::run_repl(false);
             }
             Commands::Vibe { prompt } => {
                 println!("{} ThinkingVirus is processing your vibe: '{}'", "🧠".magenta(), prompt);
@@ -57,7 +57,7 @@ fn main() {
         handle_auto(&file);
     } else {
         // Default to shell if no args
-        sadsmile::run_repl();
+        sadsmile::run_repl(false);
     }
 }
 
@@ -101,7 +101,7 @@ fn handle_run(file: Option<String>) {
             }
         }
     } else {
-        sadsmile::run_repl();
+        sadsmile::run_repl(false);
     }
 }
 

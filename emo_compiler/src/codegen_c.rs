@@ -342,8 +342,7 @@ impl CodegenC {
                 }
 
                 if is_log {
-                    for (i, arg) in args.iter().enumerate() {
-                        write!(self.output, "log_any(").unwrap();
+                    for (_i, arg) in args.iter().enumerate() {
                         self.gen_expression(arg);
                         write!(self.output, "); ").unwrap();
                     }
@@ -352,16 +351,16 @@ impl CodegenC {
                     // Skip arg generation if it was already handled for models (first arg)
                     // Wait, my logic for model methods above is a bit messy with arg handling.
                     // Let's fix it.
-                    let is_model_method = if let Expression::MemberAccess { member, .. } = &func.node {
+                    let _is_model_method = if let Expression::MemberAccess { member, .. } = &func.node {
                          matches!(member.as_str(), "train" | "save" | "think")
                     } else { false };
                     
                     // We only want to skip if it's NOT a model method or if we handled it differently.
                     // Actually, let's just use a standard way.
                     
-                    for (i, arg) in args.iter().enumerate() {
+                    for (_i, arg) in args.iter().enumerate() {
                         self.gen_expression(arg);
-                        if i < args.len() - 1 {
+                        if _i < args.len() - 1 {
                              write!(self.output, ", ").unwrap();
                         }
                     }
