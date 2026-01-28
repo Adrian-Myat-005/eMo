@@ -35,7 +35,8 @@ pub fn build(filename: &str) {
     println!("[*] Compiling Binary (via Cargo)...");
     
     // Create temp project structure
-    let project_name = filename.replace(".hpy", "").replace("/", "_").replace(".", "_");
+    let path = std::path::Path::new(filename);
+    let project_name = path.file_stem().and_then(|s| s.to_str()).unwrap_or("happy_app").replace(".", "_");
     let build_dir = format!(".build_{}", project_name);
     let _ = fs::create_dir_all(format!("{}/src", build_dir));
 

@@ -82,13 +82,18 @@ done
 printf "\r\033[K"
 printf "  ${C_GREEN}✔${C_NC} Synthesizing All Engines                 ${C_GREEN}100%%${C_NC}\n"
 
-# 5. INSTALLATION
+# INSTALL
 mkdir -p "$BIN_DIR"
 cp target/release/sadsmile "$BIN_DIR/ss"
 cp target/release/sadsmile "$BIN_DIR/nexus"
 cp target/release/happy "$BIN_DIR/happy"
 cp target/release/emo_compiler "$BIN_DIR/emo"
 
+# Remove legacy installations
+if [ -d "$HOME/.happycry" ]; then
+    echo -e "  ${C_YELLOW}Removing legacy ~/.happycry installation...${C_NC}"
+    rm -rf "$HOME/.happycry"
+fi
 # Path logic
 SHELL_CONFIG="$HOME/.bashrc"
 [ -f "$HOME/.zshrc" ] && SHELL_CONFIG="$HOME/.zshrc"
