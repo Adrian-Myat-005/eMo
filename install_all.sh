@@ -85,21 +85,18 @@ printf "\n\n" # Make space for bar
 run_task "git clone \"$REPO_URL\" \"$TEMP_DIR\" --quiet" "Downloading Neural Patterns" 30
 printf "\n\n"
 
-run_task "cargo build --release --manifest-path \"$TEMP_DIR/sadsmile/Cargo.toml\" --quiet" "Synthesizing Core (SadSmile)" 50
-printf "\n\n"
+# 3. BUILD
+cd "$TEMP_DIR"
 
-run_task "cargo build --release --manifest-path \"$TEMP_DIR/happycry/Cargo.toml\" --quiet" "Calibrating Interface (HappyCry)" 75
-printf "\n\n"
+# Optimized Workspace Build (One shot for all 3 engines)
+run_task "cargo build --release --quiet" "Synthesizing All Engines (Optimized)" 80
 
-run_task "cargo build --release --manifest-path \"$TEMP_DIR/emo_compiler/Cargo.toml\" --quiet" "Engaging Logic Gates (Compiler)" 95
-printf "\n\n"
-
-# Install
+# INSTALL
 mkdir -p "$BIN_DIR"
-cp "$TEMP_DIR/sadsmile/target/release/sadsmile" "$BIN_DIR/ss"
-cp "$TEMP_DIR/sadsmile/target/release/sadsmile" "$BIN_DIR/nexus"
-cp "$TEMP_DIR/happycry/target/release/happy" "$BIN_DIR/happy"
-cp "$TEMP_DIR/emo_compiler/target/release/emo_compiler" "$BIN_DIR/emo"
+cp target/release/sadsmile "$BIN_DIR/ss"
+cp target/release/sadsmile "$BIN_DIR/nexus"
+cp target/release/happy "$BIN_DIR/happy"
+cp target/release/emo_compiler "$BIN_DIR/emo"
 
 # Path logic
 SHELL_CONFIG="$HOME/.bashrc"
