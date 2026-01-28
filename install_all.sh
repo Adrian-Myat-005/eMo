@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-# eMo "Cinema-Grade" Installer
-# Designed for high-end CLI feel.
+# eMo "Cinema-Grade" Installer v4.1
+# Optimized for speed and real-time data feedback.
 
 # Colors
 C_BCYAN='\033[1;36m'
@@ -11,9 +11,10 @@ C_GREEN='\033[0;32m'
 C_YELLOW='\033[1;33m'
 C_NC='\033[0m'
 C_DIM='\033[2m'
+C_RED='\033[0;31m'
 
 GITHUB_USER="Adrian-Myat-005"
-REPO_URL="https://github.com/$GITHUB_USER/eMo.git"
+REPO_ZIP="https://github.com/$GITHUB_USER/eMo/archive/refs/heads/main.tar.gz"
 INSTALL_DIR="$HOME/.emo"
 BIN_DIR="$INSTALL_DIR/bin"
 
@@ -21,7 +22,7 @@ BIN_DIR="$INSTALL_DIR/bin"
 hide_cursor() { printf "\033[?25l"; }
 show_cursor() { printf "\033[?25h"; }
 
-# The High-FPS Spinner (Runs in background)
+# The High-FPS Spinner
 spinner() {
     local frames='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
     while true; do
@@ -32,32 +33,16 @@ spinner() {
     done
 }
 
-# Progress Bar
-draw_bar() {
-    local p=$1
-    local width=30
-    local filled=$(( p * width / 100 ))
-    local bar=""
-    for ((i=0; i<filled; i++)); do bar+="█"; done
-    for ((i=0; i<width-filled; i++)); do bar+=" "; done
-    printf "\n  ${C_DIM}[${C_NC}${C_BCYAN}%s${C_NC}${C_DIM}] ${C_NC}${C_BCYAN}%d%%${C_NC}\n" "$bar" "$p"
-}
-
 run_task() {
+    local cmd=$1
     local label=$2
-    local percent=$3
     
-    # Start spinner in background
     spinner "$label" &
     local SP_PID=$!
     
-    # Run task
-    if eval "$1" > /dev/null 2>&1; then
+    if eval "$cmd" > /dev/null 2>&1; then
         kill $SP_PID >/dev/null 2>&1
         printf "\r  ${C_GREEN}✔${C_NC}  %-40s ${C_GREEN}OK${C_NC}\n" "$label"
-        draw_bar "$percent"
-        # Move cursor up to prepare for next update if needed, but here we stack for clarity
-        printf "\033[A\033[A" # Go up 2 lines
     else
         kill $SP_PID >/dev/null 2>&1
         printf "\r  ${C_RED}✘${C_NC}  %-40s ${C_RED}FAILED${C_NC}\n" "$label"
@@ -74,24 +59,42 @@ clear
 echo -e "\n  ${C_BCYAN}eMo ECOSYSTEM :: DEPLOYMENT SEQUENCE${C_NC}"
 echo -e "  ${C_DIM}──────────────────────────────────────────${C_NC}\n"
 
-# Create temp space
+# 1. Environment Check
+run_task "command -v cargo" "Checking Life Support (Rust)"
+run_task "command -v tar" "Verifying Extraction Tools"
+
+# 2. REAL DATA DOWNLOAD
+echo -e "  ${C_BLUE}◈${C_NC}  ${C_DIM}Downloading Neural Patterns (Source Data)...${C_NC}"
 TEMP_DIR=$(mktemp -d)
+# Using curl with a progress bar for "Real Data" feel
+show_cursor
+if ! curl -L "$REPO_ZIP" -# -o "$TEMP_DIR/source.tar.gz"; then
+    echo -e "\n  ${C_RED}✘ Download Interrupted${C_NC}"
+    exit 1
+fi
+hide_cursor
 
-# SEQUENCE
-# We use a bit of cursor math to keep it clean
-run_task "sleep 0.5" "Establishing Secure Uplink" 15
-printf "\n\n" # Make space for bar
+# 3. EXTRACTION
+run_task "tar -xzf $TEMP_DIR/source.tar.gz -C $TEMP_DIR --strip-components=1" "Unpacking Neural Segments"
 
-run_task "git clone \"$REPO_URL\" \"$TEMP_DIR\" --quiet" "Downloading Neural Patterns" 30
-printf "\n\n"
-
-# 3. BUILD
+# 4. OPTIMIZED BUILD
 cd "$TEMP_DIR"
+echo -e "  ${C_BLUE}◈${C_NC}  ${C_DIM}Synthesizing All Engines (This takes time)...${C_NC}"
+# We show a custom spinner for the long build
+spinner "Compiling Unified Workspace" &
+BUILD_SP_PID=$!
 
-# Optimized Workspace Build (One shot for all 3 engines)
-run_task "cargo build --release --quiet" "Synthesizing All Engines (Optimized)" 80
+if cargo build --release --quiet; then
+    kill $BUILD_SP_PID >/dev/null 2>&1
+    printf "\r  ${C_GREEN}✔${C_NC}  %-40s ${C_GREEN}OK${C_NC}\n" "Synthesizing All Engines"
+else
+    kill $BUILD_SP_PID >/dev/null 2>&1
+    printf "\r  ${C_RED}✘${C_NC}  %-40s ${C_RED}FAILED${C_NC}\n" "Synthesizing All Engines"
+    show_cursor
+    exit 1
+fi
 
-# INSTALL
+# 5. INSTALLATION
 mkdir -p "$BIN_DIR"
 cp target/release/sadsmile "$BIN_DIR/ss"
 cp target/release/sadsmile "$BIN_DIR/nexus"
@@ -102,17 +105,17 @@ cp target/release/emo_compiler "$BIN_DIR/emo"
 SHELL_CONFIG="$HOME/.bashrc"
 [ -f "$HOME/.zshrc" ] && SHELL_CONFIG="$HOME/.zshrc"
 if ! grep -q "$BIN_DIR" "$SHELL_CONFIG"; then
-    echo "export PATH=\"$BIN_DIR:\$PATH\"" >> "$SHELL_CONFIG"
+    echo -e "\n# eMo Ecosystem\nexport PATH=\"$BIN_DIR:\$PATH\"" >> "$SHELL_CONFIG"
 fi
 
 rm -rf "$TEMP_DIR"
 
 # FINISH
-printf "\r  ${C_GREEN}✔${C_NC}  %-40s ${C_GREEN}100%%${C_NC}\n" "System Integration Complete"
-draw_bar 100
-
-echo -e "\n  ${C_BCYAN}ACCESS GRANTED.${C_NC}"
-echo -e "  ${C_DIM}Restart terminal or run: source $SHELL_CONFIG${C_NC}"
-echo -e "  ${C_DIM}Launch environment with:${C_NC} ${C_YELLOW}nexus${C_NC}\n"
+echo -e "\n  ${C_GREEN}✔${C_NC}  ${C_BOLD}System Integration Complete${C_NC}"
+echo -e "  ${C_DIM}──────────────────────────────────────────${C_NC}"
+echo -e "  To activate, run: ${C_BCYAN}source $SHELL_CONFIG${C_NC}"
+echo -e "  Type ${C_YELLOW}nexus${C_NC} to begin.\n"
 
 show_cursor
+# Self-execute nexus if terminal allows
+exec "$BIN_DIR/nexus"
