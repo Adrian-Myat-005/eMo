@@ -1,0 +1,11 @@
+# Ignore compiled build artifacts
+target/
+**/*.rs.bk
+.happy_cache/
+
+# Ignore sensitive config/keys
+happy.tvrus
+*.db
+
+# Ignore system files
+.DS_Store

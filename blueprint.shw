@@ -1,0 +1,40 @@
+{
+  "source_url": "./test_shadow_repo",
+  "project_type": "Unknown",
+  "files": [
+    "config",
+    "master",
+    "HEAD",
+    "HEAD",
+    "master",
+    "HEAD",
+    "packed-refs",
+    "description",
+    "ad8a5e5fdc9343cf4792d4cb6e5c58fda7e199",
+    "5b5a10aa329d6bc689c6d269c315d33732095b",
+    "a2e91d0829130b9a197fc5061e745061c608b0",
+    "exclude",
+    "HEAD",
+    "prepare-commit-msg.sample",
+    "applypatch-msg.sample",
+    "pre-rebase.sample",
+    "pre-commit.sample",
+    "pre-push.sample",
+    "post-update.sample",
+    "pre-merge-commit.sample",
+    "pre-receive.sample",
+    "fsmonitor-watchman.sample",
+    "pre-applypatch.sample",
+    "sendemail-validate.sample",
+    "commit-msg.sample",
+    "push-to-checkout.sample",
+    "update.sample",
+    "index",
+    "magic.py"
+  ],
+  "readme_summary": null,
+  "learned_patterns": [
+    "Python Fn: cast_spell(mana)",
+    "Python Fn: summon_daemon(name, circle_type)"
+  ]
+}

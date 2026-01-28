@@ -1,0 +1,48 @@
+// src/interface.hpy
+// TIER: HAPPY CRY (The Fluid Interface)
+// RESPONSIBILITY: 3D UI, WebSockets, User Interaction
+
+import joy
+
+// 1. Define the 3D Dashboard
+fn render_dashboard() {
+    joy.log("[UI] Mounting 3D Nexus Interface...")
+
+    let win = joy.web.window("Nexus Control")
+    
+    // Create a 3D Globe visualization
+    let globe = joy.ui.canvas_3d()
+    globe.mesh("sphere_wireframe")
+    globe.texture("hologram_blue")
+    globe.animate("spin_y", speed: 0.5)
+
+    // Add Reactive Stats Panel
+    let stats = joy.ui.panel("System Vitality")
+    stats.style(blur: 20, opacity: 0.8)
+    
+    // Bind to WebSocket Stream
+    stats.bind_stream("ws://localhost:8080/metrics", |data| {
+        globe.pulse_color(data.load > 90 ? "red" : "blue")
+    })
+
+    win.add(globe)
+    win.add(stats)
+    
+    joy.web.mount(win)
+}
+
+// 2. Route Handling (The "Happy" Path)
+pub fn start_web_server() {
+    let server = joy.http.new(port: 8080)
+
+    server.route("/", |req| {
+        return joy.html.render(render_dashboard())
+    })
+
+    server.route("/api/chat", |req| {
+        // Pass to ThinkingVirus via Channel
+        return joy.channel.send("brain_input", req.body)
+    })
+
+    server.start_async()
+}

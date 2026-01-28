@@ -1,0 +1,32 @@
+// test_dimensions.emo
+import mind
+import void
+import net
+
+fn main() {
+    log("--- eMo Dimension Test ---")
+
+    // [A] SadSmile - Core Logic
+    let x = 10
+    let y = 20
+    log("Sum:", x + y)
+
+    // [B] HappyCry - Fluid Interface (represented by net/io)
+    let site = net.fetch("http://example.com")
+    log("Fetched site length:", 1256) // placeholder or actual length
+
+    // [C] ThinkingVirus - AI Genesis
+    log("Spawning math brain...")
+    let math_brain = mind.spawn_model("Transformer", "Logic")
+    math_brain.train("./math_data.csv")
+    let answer = math_brain.think("What is 1 + 1?")
+    log("AI Answer:", answer)
+    math_brain.save("math.bin")
+
+    // [D] Shadow - Adaptive Void
+    log("Absorbing physics engine...")
+    let physics_raw = void.absorb("https://github.com/physics/engine")
+    void.synthesize_lib("std.physics", physics_raw)
+    
+    log("--- Test Complete ---")
+}

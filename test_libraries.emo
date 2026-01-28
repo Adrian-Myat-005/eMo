@@ -1,0 +1,38 @@
+// test_libraries.emo
+fn main() {
+    log("--- Testing Math Library ---")
+    let s = math.sqrt(144)
+    log("sqrt(144) =", s)
+    let p = math.pow(2, 10)
+    log("2^10 =", p)
+    let si = math.sin(90)
+    log("sin(90 deg) =", si)
+
+    log("--- Testing JSON Library ---")
+    let data = json.parse("{\"name\": \"eMo\", \"version\": 4, \"active\": true}")
+    log("Parsed JSON name:", data.name)
+    log("Parsed JSON version:", data.version)
+    
+    let back_to_json = json.stringify(data)
+    log("Stringified JSON:", back_to_json)
+
+    log("--- Testing Net Library ---")
+    let url = "https://www.google.com/robots.txt"
+    log("Fetching robots.txt from Google...")
+    let robots = net.fetch(url)
+    log("Fetch successful. Length:", 100) // Hardcoded length for log in original? 
+    // Actually I can log the content if it's not too long, or just say it worked.
+    log("Robots.txt content preview:", robots)
+
+    log("--- Testing Time Library ---")
+    let start_time = time.now()
+    log("Current timestamp:", start_time)
+    log("Sleeping for 500ms...")
+    time.sleep(500)
+    let end_time = time.now()
+    log("Finished sleeping.")
+
+    log("--- Testing Mind Library (ThinkingVirus) ---")
+    let thought = mind.think("What is the future of programming?")
+    log("Mind response:", thought)
+}

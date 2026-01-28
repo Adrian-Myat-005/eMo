@@ -1,0 +1,13 @@
+fn main() {
+    let x: int = 0
+    while x < 5 {
+        log("Looping... count:")
+        log(x)
+        x = x + 1
+    }
+    
+    let is_done = true
+    if is_done {
+        log("Finished!")
+    }
+}

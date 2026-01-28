@@ -1,0 +1,26 @@
+struct User {
+    name: str,
+    age: int
+}
+
+enum Color {
+    Red,
+    Green,
+    Blue
+}
+
+fn main() {
+    let u = User {
+        name: "Adrian",
+        age: 30
+    }
+    
+    log("User Name:")
+    log(u.name)
+    
+    let c = Color.Red
+    log("Color is Red?")
+    if c == Color.Red {
+        log("Yes!")
+    }
+}

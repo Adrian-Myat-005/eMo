@@ -1,0 +1,36 @@
+// main.emo
+// THE NEXUS: ENTRY POINT
+// "One Language. Four Dimensions."
+
+// 1. Import The Dimensions
+import sys from "./src/kernel.ss"     // The Metal
+import joy from "./src/interface.hpy" // The Flow
+import mind from "./src/brain.tvrus"  // The Genesis
+import void from "./src/adapter.shw"  // The Void
+
+fn main() {
+    // Phase 1: Adaptation (Shadow)
+    // Ensure we have all necessary libraries
+    void.absorb_dependencies()
+
+    // Phase 2: System Boot (SadSmile)
+    // Initialize memory arenas and kernel drivers
+    sys.init_system()
+    sys.start_daemon()
+
+    // Phase 3: Intelligence Genesis (ThinkingVirus)
+    // Spawn the AI model that will govern the system
+    mind.init_intelligence()
+    
+    // Connect Brain to Kernel for traffic analysis
+    let traffic = sys.net.get_stream("eth0")
+    sys.thread.spawn(|| {
+        mind.analyze_traffic(traffic)
+    })
+
+    // Phase 4: User Interface (HappyCry)
+    // Launch the 3D Web Dashboard
+    joy.start_web_server()
+
+    sys.log("[NEXUS] System Fully Operational.")
+}

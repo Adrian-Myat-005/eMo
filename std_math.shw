@@ -1,0 +1,23 @@
+// Synthesized eMo Library: std::math
+import sys
+
+fn add(a0: int, a1: int) {
+    let lib = sys.load_lib("./libstd_math.so")
+    return sys.call_ffi(lib, "add", a0, a1)
+}
+
+fn sub(a0: int, a1: int) {
+    let lib = sys.load_lib("./libstd_math.so")
+    return sys.call_ffi(lib, "sub", a0, a1)
+}
+
+fn multiply(a0: int, a1: int) {
+    let lib = sys.load_lib("./libstd_math.so")
+    return sys.call_ffi(lib, "multiply", a0, a1)
+}
+
+fn clear_cache() {
+    let lib = sys.load_lib("./libstd_math.so")
+    return sys.call_ffi(lib, "clear_cache")
+}
+

@@ -1,0 +1,29 @@
+# Build Artifacts
+target/
+**/target/
+**/*.rs.bk
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+
+# Archives
+*.tar.gz
+*.zip
+
+# Dependencies
+node_modules/
+.happy_cache/
+**/.happy_cache/
+
+# Configs & Secrets
+*.db
+*.env
+happy.tvrus
+sadsmile/cert_zone/config.json
+.DS_Store
+
+# Generated Lessons (Keep the generator script, ignore the 1000 files)
+lessons/
+language_lessons/

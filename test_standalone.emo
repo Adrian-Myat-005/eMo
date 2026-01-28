@@ -1,0 +1,44 @@
+// test_standalone.emo
+fn main() {
+    log("--- Testing File I/O ---")
+    let path = "test_io.txt"
+    sys.write_file(path, "Hello from eMo Standalone!\n")
+    sys.append_file(path, "This is an appended line.\n")
+    let content = sys.read_file(path)
+    log("File Content:", content)
+
+    log("--- Testing Low-Level Memory ---")
+    let ptr = sys.alloc(10)
+    if ptr == null {
+        log("Failed to allocate memory")
+    } else {
+        log("Allocated 10 bytes at", ptr)
+        sys.poke(ptr, 65) // 'A'
+        sys.poke(ptr + 1, 66) // 'B'
+        let b1 = sys.peek(ptr)
+        let b2 = sys.peek(ptr + 1)
+        log("Peeked values:", b1, b2)
+        sys.free(ptr)
+        log("Memory freed")
+    }
+
+    log("--- Testing FFI (libc) ---")
+    // Note: Path might vary by system. Trying common location for libc.
+    let libc_path = "/lib/x86_64-linux-gnu/libc.so.6"
+    let lib = sys.load_lib(libc_path)
+    if lib == null {
+        log("Failed to load libc from", libc_path)
+    } else {
+        log("Loaded libc")
+        // Calling 'abs' function: int abs(int j)
+        let val = -42
+        let abs_val = sys.call_ffi(lib, "abs", val)
+        log("abs(", val, ") =", abs_val)
+        
+        // Calling 'sqrt' from libm if libc doesn't have it (usually it doesn't)
+        // Actually let's try 'strlen' with a string
+        let s = "FFI is cool"
+        let len = sys.call_ffi(lib, "strlen", s)
+        log("strlen('", s, "') =", len)
+    }
+}

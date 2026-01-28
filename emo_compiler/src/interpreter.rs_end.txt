@@ -1,0 +1,59 @@
+            "sys.call_ffi" => {
+                if let (Some(Value::Library(lib)), Some(Value::String(func_name))) = (args.get(0), args.get(1)) {
+                    unsafe {
+                        let func: libloading::Symbol<unsafe extern "C" fn(i64, i64, i64, i64) -> i64> = 
+                            lib.get(func_name.as_bytes()).map_err(|e| format!("FFI Error: {}", e))?;
+                        
+                        let mut ffi_args = [0i64; 4];
+                        for i in 0..4 {
+                            if let Some(val) = args.get(i + 2) {
+                                ffi_args[i] = match val {
+                                    Value::Number(n) => *n,
+                                    Value::Pointer(p) => *p as i64,
+                                    Value::String(s) => s.as_ptr() as i64,
+                                    _ => 0,
+                                };
+                            }
+                        }
+                        
+                        let res = func(ffi_args[0], ffi_args[1], ffi_args[2], ffi_args[3]);
+                        Ok(Value::Number(res))
+                    }
+                } else {
+                    Err("sys.call_ffi expects a library and a function name".to_string())
+                }
+            },
+            _ => Err(format!("Unknown native function {}", name)),
+        }
+    }
+
+    fn call_bound_native(&self, receiver: Value, name: &str, args: Vec<Value>) -> Result<Value, String> {
+        match (receiver, name) {
+            (Value::Model { model_type, state, .. }, "model.train") => {
+                if let Some(Value::String(path)) = args.get(0) {
+                    println!("[MIND] Training {} on {}...", model_type, path);
+                    state.borrow_mut().trained_data.push(path.clone());
+                    Ok(Value::Null)
+                } else {
+                    Err("model.train expects a string path".to_string())
+                }
+            },
+            (Value::Model { model_type, .. }, "model.save") => {
+                if let Some(Value::String(path)) = args.get(0) {
+                    println!("[MIND] Saving model to {}...", path);
+                    Ok(Value::Null)
+                } else {
+                    Err("model.save expects a string path".to_string())
+                }
+            },
+            (Value::Model { model_type, .. }, "model.think") => {
+                if let Some(Value::String(prompt)) = args.get(0) {
+                    Ok(Value::String(format!("[{}] After processing your request '{}', I conclude that eMo is the future.", model_type, prompt)))
+                } else {
+                    Err("model.think expects a string prompt".to_string())
+                }
+            },
+            _ => Err(format!("Unknown bound native function {}", name)),
+        }
+    }
+}

@@ -1,0 +1,15 @@
+[package]
+name = "sadsmile"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+colored = "3.1.1"
+rustyline = "17.0.2"
+dirs = "5.0"
+
+[profile.release]
+lto = true
+strip = true
+codegen-units = 1
+panic = "abort"

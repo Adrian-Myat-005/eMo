@@ -1,0 +1,10 @@
+[workspace]
+
+members = [
+    "emo_compiler",
+    "happycry",
+    "sadsmile",
+    "emo",
+]
+
+resolver = "2"

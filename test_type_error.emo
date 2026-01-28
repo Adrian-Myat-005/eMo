@@ -1,0 +1,5 @@
+fn main() {
+    let x = 10
+    set x to "this should fail"
+    return 0
+}

@@ -1,0 +1,17 @@
+import sys
+import joy
+
+fn main() {
+    let x = 10
+    if x > 5 {
+        sys.log("System Check OK")
+        joy.say("Hello World")
+    }
+
+    loop {
+        let status = sys.poll()
+        if status == 0 {
+            break
+        }
+    }
+}

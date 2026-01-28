@@ -1,0 +1,43 @@
+[package]
+name = "happy_cry_lang"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+regex = "1.10"
+colored = "2.0"
+anyhow = "1.0"
+human-panic = "1.0"
+clap = { version = "4.4", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+reqwest = { version = "0.11", default-features = false, features = ["json", "blocking", "rustls-tls"] }
+walkdir = "2.4"
+thiserror = "1.0"
+
+[[bin]]
+
+name = "happy"
+
+path = "src/main.rs"
+
+
+
+[[bin]]
+
+name = "tvrus"
+
+path = "src/bin/virus/main.rs"
+
+
+
+
+
+
+
+[[bin]]
+
+name = "shadow"
+
+path = "src/bin/shadow/main.rs"

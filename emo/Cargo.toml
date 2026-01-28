@@ -1,0 +1,11 @@
+[package]
+name = "emo"
+version = "4.0.0"
+edition = "2021"
+
+[dependencies]
+emo_compiler = { path = "../emo_compiler" }
+happy_cry_lang = { path = "../happycry" }
+sadsmile = { path = "../sadsmile" }
+clap = { version = "4", features = ["derive"] }
+colored = "2"

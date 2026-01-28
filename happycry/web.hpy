@@ -1,0 +1,16 @@
+#happy
+
+say "Starting Safe Mode Server..."
+set my_port to "3000"
+set html_content to "<h1>It Works!</h1>"
+
+# 1. Start on a different port (3000 is safer than 8080)
+server new port my_port
+
+# 2. Define Route
+route "/"
+
+# 3. Serve a simple variable (No math here)
+serve html_content
+
+say "Active on port 3000"

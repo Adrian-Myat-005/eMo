@@ -1,0 +1,17 @@
+// test_shadow.emo
+import void
+
+fn main() {
+    log("--- Shadow Synthesis Test ---")
+
+    let header_path = "test_math.h"
+    log("Absorbing header:", header_path)
+
+    let raw_content = void.absorb(header_path)
+    log("Raw Content length:", 100) // placeholder
+
+    let lib_file = void.synthesize_lib("std::math", raw_content)
+    log("Library synthesized to:", lib_file)
+
+    log("--- Synthesis Complete ---")
+}
