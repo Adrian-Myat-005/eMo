@@ -65,7 +65,7 @@ pub fn run_repl(is_nexus: bool) {
     }
 
     if !is_nexus {
-        println!("SadSmile Shell v1.0. Type 'exit' to quit.");
+        // Standard Shell mode: Minimalist
     }
 
     loop {
@@ -73,7 +73,7 @@ pub fn run_repl(is_nexus: bool) {
             let pwd = std::env::current_dir().unwrap_or_default().display().to_string();
             interface::prompt(&pwd)
         } else {
-            "ss$ ".to_string()
+            "$ ".to_string() // Minimalist prompt for ss
         };
 
         let readline = editor.readline(&prompt_str);
@@ -89,6 +89,22 @@ pub fn run_repl(is_nexus: bool) {
 
                 if input == "exit" {
                     break;
+                }
+
+                // Nexus-Specific Interceptors
+                if is_nexus {
+                    if input == "status" {
+                        interface::draw_dashboard();
+                        continue;
+                    }
+                    if input == "help" {
+                        interface::draw_nexus_help();
+                        continue;
+                    }
+                    if input == "clear" {
+                        interface::draw_dashboard();
+                        continue;
+                    }
                 }
 
                 match Tokenizer::tokenize(input) {

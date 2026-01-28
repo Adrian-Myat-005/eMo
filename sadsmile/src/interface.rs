@@ -56,29 +56,47 @@ pub fn draw_dashboard() {
     // Clear screen and move to top
     print!("\x1B[2J\x1B[1;1H"); 
 
-    let width = 60;
-    let border = "=".repeat(width);
+    let width = 64;
+    let border = "═".repeat(width);
     
-    // Header
+    // Header with "Glow" effect using bold cyan
     println!("{}", border.blue());
-    println!("  {}            {}", "eMo UNIFIED INTELLIGENCE SYSTEM".cyan().bold(), "v4.0".green());
+    println!("  {}            {}", "eMo UNIFIED NEXUS ENVIRONMENT".cyan().bold(), "v4.0.0-PRO".green());
     println!("{}", border.blue());
 
-    // Stats Row
-    println!("  STATUS: {}    MEM: {}    NET: {}", 
-             "ONLINE".green().bold(), 
-             "ACTIVE".yellow(), 
-             "CONNECTED".green());
+    // Status Panels
+    println!("  {} {}    {} {}    {} {}", 
+             "SYSTEM:".white().dimmed(), "STABLE".green().bold(), 
+             "KERNEL:".white().dimmed(), "LOCKED".yellow(), 
+             "UPLINK:".white().dimmed(), "SYNCED".green());
     
-    // Modules Row
-    println!("  MODULES: [SS] {}  [HPY] {}  [TV] {}", 
-             "READY".green(), 
-             "READY".green(), 
-             "IDLE".dimmed());
+    // Module Grid
+    println!("  {} [SS] {}    [HPY] {}    [TVR] {}", 
+             "ENGINES:".white().dimmed(),
+             "READY".blue(), 
+             "READY".blue(), 
+             "STANDBY".magenta());
 
     println!("{}", border.blue());
-    println!("{}", "Type 'exit' to disconnect.".black().on_white());
-    println!(""); // Spacer
+    println!("  {} | {} | {}", 
+             "status: refresh hud".black().on_cyan(),
+             "help: nexus guide".black().on_cyan(),
+             "exit: logout".black().on_red());
+    println!("{}", border.blue());
+    println!(""); 
+}
+
+pub fn draw_nexus_help() {
+    println!("\n{}", "◈ eMo NEXUS COMMAND GUIDE ◈".cyan().bold());
+    println!("{}", "--------------------------------------------------".blue());
+    println!("  {}      Redraw the immersive dashboard", "status".green());
+    println!("  {}      Clear screen and refresh HUD", "clear".green());
+    println!("  {}      Compile a HappyCry automation script", "happy".blue());
+    println!("  {}      Run an eMo or SadSmile script", "emo".blue());
+    println!("  {}      Synthesize libraries from external repos", "shadow".yellow());
+    println!("  {}      Terminate the Nexus link", "exit".red());
+    println!("{}", "--------------------------------------------------".blue());
+    println!("");
 }
 
 pub fn prompt(pwd: &str) -> String {
