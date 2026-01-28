@@ -20,6 +20,9 @@ INSTALL_DIR="$HOME/.emo"
 BIN_DIR="$INSTALL_DIR/bin"
 
 # UTILS: ANIMATION & PROGRESS
+hide_cursor() { printf "\033[?25l"; }
+show_cursor() { printf "\033[?25h"; }
+
 draw_bar() {
     # Usage: draw_bar <current_step> <total_steps> <msg>
     local current=$1
@@ -38,14 +41,14 @@ draw_bar() {
     for ((i=0; i<empty; i++)); do bar_str+="░"; done
 
     # Color logic for HP
-    local color=$C_GREEN
-    if [ $percent -lt 30 ]; then color=$C_RED;
-    elif [ $percent -lt 70 ]; then color=$C_YELLOW;
-    fi
+    local color=$C_RED
+    if [ $percent -ge 50 ]; then color=$C_YELLOW; fi
+    if [ $percent -ge 80 ]; then color=$C_GREEN; fi
 
     # Clear line and print
+    # Format: HP: [████░░] 50% :: Message... [Spinner]
     printf "\r\033[K" # Clear line
-    printf "${C_BOLD}HP: [${color}%s${C_NC}${C_BOLD}] %3d%% ${C_NC} :: %s" "$bar_str" "$percent" "$msg"
+    printf "${C_BOLD}HP: [${color}%s${C_NC}${C_BOLD}] %3d%% ${C_NC} :: %s " "$bar_str" "$percent" "$msg"
 }
 
 spinner_pid=""
@@ -53,15 +56,15 @@ start_spinner() {
     set +m
     {
         local delay=0.1
-        local spinstr='|/-\'
+        local spinstr='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
         while :; do
             local temp=${spinstr#?}
-            printf " [%c] " "$spinstr"
+            printf "${C_CYAN}%c${C_NC}" "$spinstr"
             local spinstr=$temp${spinstr%"$temp"}
             sleep $delay
-            printf "\b\b\b\b\b"
+            printf "\b"
         done
-    } & 
+    } &
     spinner_pid=$!
 }
 
@@ -69,7 +72,7 @@ stop_spinner() {
     if [ -n "$spinner_pid" ]; then
         kill "$spinner_pid" >/dev/null 2>&1
         wait "$spinner_pid" >/dev/null 2>&1
-        printf "\b\b\b\b\b" # Clear spinner chars
+        printf " ${C_GREEN}✔${C_NC}" # Replace spinner with checkmark
         spinner_pid=""
     fi
 }
@@ -80,7 +83,7 @@ run_task() {
     local total=$3
     local label=$4
 
-    draw_bar "$step" "$total" "$label..."
+    draw_bar "$step" "$total" "$label"
     start_spinner
     
     # Run command and capture error if any
@@ -88,6 +91,7 @@ run_task() {
         stop_spinner
     else
         stop_spinner
+        show_cursor
         echo -e "\n${C_RED}❌ CRITICAL DAMAGE: Failed at '$label'${C_NC}"
         echo "Command: $cmd"
         exit 1
@@ -95,6 +99,8 @@ run_task() {
 }
 
 # --- START ---
+trap show_cursor EXIT
+hide_cursor
 clear
 echo -e "${C_BLUE}
 ███████╗███╗   ███╗ ██████╗ 
