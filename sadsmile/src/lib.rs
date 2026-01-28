@@ -7,6 +7,7 @@ pub mod executor;
 pub mod shell_helper;
 pub mod config;
 pub mod tvrus_client;
+pub mod interface;
 
 use colored::*;
 use crate::memory::Backpack;
@@ -63,11 +64,12 @@ pub fn run_repl() {
         let _ = editor.load_history(path);
     }
 
-    println!("{}", "Sadsmile Shell (Bash-like Mode)".green().bold());
-    println!("Type 'exit' to quit.");
+    // Boot sequence handles the welcome message now.
 
     loop {
-        let readline = editor.readline("ss$ ");
+        let pwd = std::env::current_dir().unwrap_or_default().display().to_string();
+        let prompt_str = interface::prompt(&pwd);
+        let readline = editor.readline(&prompt_str);
 
         match readline {
             Ok(line) => {
