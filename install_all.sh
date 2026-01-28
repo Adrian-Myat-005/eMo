@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# eMo Unified System Installer
+# eMo Unified System Installer (Professional Redesign)
 # Targets: Linux, macOS, WSL
 
 # Colors
@@ -10,6 +10,7 @@ C_GREEN='\033[0;32m'
 C_RED='\033[0;31m'
 C_CYAN='\033[0;36m'
 C_YELLOW='\033[1;33m'
+C_DIM='\033[2m'
 C_NC='\033[0m'
 C_BOLD='\033[1m'
 
@@ -19,148 +20,138 @@ REPO_URL="https://github.com/$GITHUB_USER/eMo.git"
 INSTALL_DIR="$HOME/.emo"
 BIN_DIR="$INSTALL_DIR/bin"
 
-# UTILS: ANIMATION & PROGRESS
+# UTILS
 hide_cursor() { printf "\033[?25l"; }
 show_cursor() { printf "\033[?25h"; }
 
-draw_bar() {
-    # Usage: draw_bar <current_step> <total_steps> <msg>
+# Smooth Block Progress
+draw_progress() {
     local current=$1
     local total=$2
-    local msg=$3
-    
-    # Calculate percentage
     local percent=$(( 100 * current / total ))
-    local bar_len=20
+    local bar_len=30
     local filled=$(( bar_len * percent / 100 ))
     local empty=$(( bar_len - filled ))
 
-    # Construct bar
-    local bar_str=""
-    for ((i=0; i<filled; i++)); do bar_str+="█"; done
-    for ((i=0; i<empty; i++)); do bar_str+="░"; done
+    local bar=""
+    for ((i=0; i<filled; i++)); do bar+="█"; done
+    for ((i=0; i<empty; i++)); do bar+="░"; done
 
-    # Color logic for HP
-    local color=$C_RED
-    if [ $percent -ge 50 ]; then color=$C_YELLOW; fi
-    if [ $percent -ge 80 ]; then color=$C_GREEN; fi
-
-    # Clear line and print
-    # Format: HP: [████░░] 50% :: Message... [Spinner]
-    printf "\r\033[K" # Clear line
-    printf "${C_BOLD}HP: [${color}%s${C_NC}${C_BOLD}] %3d%% ${C_NC} :: %s " "$bar_str" "$percent" "$msg"
+    printf "\n  ${C_DIM}Progress: [${C_NC}${C_CYAN}%s${C_NC}${C_DIM}] %3d%%${C_NC}\n" "$bar" "$percent"
 }
 
-spinner_pid=""
-start_spinner() {
-    set +m
-    {
-        local delay=0.1
-        local spinstr='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
-        while :; do
-            local temp=${spinstr#?}
-            printf "${C_CYAN}%c${C_NC}" "$spinstr"
-            local spinstr=$temp${spinstr%"$temp"}
-            sleep $delay
-            printf "\b"
-        done
-    } &
-    spinner_pid=$!
+start_task() {
+    local label=$1
+    printf "  ${C_BLUE}◈${C_NC} %-35s" "$label"
 }
 
-stop_spinner() {
-    if [ -n "$spinner_pid" ]; then
-        kill "$spinner_pid" >/dev/null 2>&1
-        wait "$spinner_pid" >/dev/null 2>&1
-        printf " ${C_GREEN}✔${C_NC}" # Replace spinner with checkmark
-        spinner_pid=""
-    fi
+end_task_ok() {
+    printf "${C_GREEN}DONE${C_NC}\n"
 }
 
-run_task() {
-    local cmd=$1
-    local step=$2
-    local total=$3
-    local label=$4
-
-    draw_bar "$step" "$total" "$label"
-    start_spinner
-    
-    # Run command and capture error if any
-    if eval "$cmd" > /dev/null 2>&1; then
-        stop_spinner
-    else
-        stop_spinner
-        show_cursor
-        echo -e "\n${C_RED}❌ CRITICAL DAMAGE: Failed at '$label'${C_NC}"
-        echo "Command: $cmd"
-        exit 1
-    fi
+end_task_err() {
+    printf "${C_RED}FAIL${C_NC}\n"
 }
 
 # --- START ---
 trap show_cursor EXIT
 hide_cursor
 clear
-echo -e "${C_BLUE}
-███████╗███╗   ███╗ ██████╗ 
-██╔════╝████╗ ████║██╔═══██╗
-█████╗  ██╔████╔██║██║   ██║
-██╔══╝  ██║╚██╔╝██║██║   ██║
-███████╗██║ ╚═╝ ██║╚██████╔╝
-╚══════╝╚═╝     ╚═╝ ╚═════╝ 
-${C_NC}"
-echo -e "${C_CYAN}Initializing System Link...${C_NC}\n"
 
-# STEPS
+echo -e "\n${C_CYAN}${C_BOLD}  eMo UNIFIED SYSTEM INSTALLATION${C_NC}"
+echo -e "  ${C_DIM}════════════════════════════════════════════${C_NC}\n"
+
 TOTAL_STEPS=6
+CURRENT_STEP=0
 
-# 1. RUST CHECK
-run_task "command -v cargo" 1 $TOTAL_STEPS "Checking Life Support (Rust)"
+# 1. Environment
+start_task "Checking Life Support (Rust)"
+if command -v cargo &> /dev/null; then
+    end_task_ok
+else
+    end_task_err
+    echo -e "\n  ${C_RED}Rust not found.${C_NC} Installing rustup..."
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    source $HOME/.cargo/env
+fi
+CURRENT_STEP=1
+draw_progress $CURRENT_STEP $TOTAL_STEPS
 
-# 2. CLONE
+# 2. Clone
+start_task "Downloading Neural Patterns"
 TEMP_DIR=$(mktemp -d)
-run_task "git clone \"$REPO_URL\" \"$TEMP_DIR\" --quiet" 2 $TOTAL_STEPS "Downloading Neural Patterns (Clone)"
+if git clone "$REPO_URL" "$TEMP_DIR" --quiet; then
+    end_task_ok
+else
+    end_task_err
+    exit 1
+fi
+CURRENT_STEP=2
+draw_progress $CURRENT_STEP $TOTAL_STEPS
 
-# 3. BUILD
+# 3. Build SadSmile
 cd "$TEMP_DIR"
-# SadSmile
-run_task "cargo build --release --manifest-path sadsmile/Cargo.toml --quiet" 3 $TOTAL_STEPS "Compiling Core Kernel (SadSmile)"
-# HappyCry
-run_task "cargo build --release --manifest-path happycry/Cargo.toml --quiet" 4 $TOTAL_STEPS "Synthesizing Dopamine (HappyCry)"
-# Compiler
-run_task "cargo build --release --manifest-path emo_compiler/Cargo.toml --quiet" 5 $TOTAL_STEPS "Engaging Logic Gates (eMo Compiler)"
+start_task "Compiling Core Kernel (SadSmile)"
+if cargo build --release --manifest-path sadsmile/Cargo.toml --quiet; then
+    end_task_ok
+else
+    end_task_err
+    exit 1
+fi
+CURRENT_STEP=3
+draw_progress $CURRENT_STEP $TOTAL_STEPS
 
-# INSTALL
+# 4. Build HappyCry
+start_task "Synthesizing Interface (HappyCry)"
+if cargo build --release --manifest-path happycry/Cargo.toml --quiet; then
+    end_task_ok
+else
+    end_task_err
+    exit 1
+fi
+CURRENT_STEP=4
+draw_progress $CURRENT_STEP $TOTAL_STEPS
+
+# 5. Build eMo Compiler
+start_task "Engaging Logic Gates (Compiler)"
+if cargo build --release --manifest-path emo_compiler/Cargo.toml --quiet; then
+    end_task_ok
+else
+    end_task_err
+    exit 1
+fi
+CURRENT_STEP=5
+draw_progress $CURRENT_STEP $TOTAL_STEPS
+
+# 6. Finalizing
+start_task "Optimizing Binaries & Path"
 mkdir -p "$BIN_DIR"
 cp sadsmile/target/release/sadsmile "$BIN_DIR/ss"
-# Create Nexus (Visual Mode)
-cp "$BIN_DIR/ss" "$BIN_DIR/nexus"
-
+cp sadsmile/target/release/sadsmile "$BIN_DIR/nexus"
 cp happycry/target/release/happy "$BIN_DIR/happy"
 cp emo_compiler/target/release/emo_compiler "$BIN_DIR/emo"
 
-# 4. PATH
 SHELL_CONFIG=""
 for f in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile"; do
     if [ -f "$f" ]; then SHELL_CONFIG="$f"; break; fi
 done
-
 if [ -n "$SHELL_CONFIG" ]; then
     if ! grep -q "$BIN_DIR" "$SHELL_CONFIG"; then
         echo >> "$SHELL_CONFIG"
-        echo "# eMo Ecosystem" >> "$SHELL_CONFIG"
         echo "export PATH=\"$BIN_DIR:\$PATH\"" >> "$SHELL_CONFIG"
     fi
 fi
+end_task_ok
+CURRENT_STEP=6
+draw_progress $CURRENT_STEP $TOTAL_STEPS
 
-# 5. CLEANUP
+# Cleanup
 rm -rf "$TEMP_DIR"
 
-# FINISH
-draw_bar $TOTAL_STEPS $TOTAL_STEPS "SYSTEM FULLY OPERATIONAL"
-echo -e "\n"
-echo -e "${C_GREEN}✅ Installation Complete.${C_NC}"
-echo -e "Launching Nexus Environment..."
-sleep 1
-exec "$BIN_DIR/nexus"
+echo -e "\n  ${C_GREEN}${C_BOLD}INSTALLATION COMPLETE${C_NC}"
+echo -e "  ${C_DIM}────────────────────────────────────────────${C_NC}"
+echo -e "  To activate, restart your terminal or run:"
+echo -e "  ${C_CYAN}source $SHELL_CONFIG${C_NC}\n"
+echo -e "  Type ${C_YELLOW}nexus${C_NC} to enter the eMo environment.\n"
+
+show_cursor
