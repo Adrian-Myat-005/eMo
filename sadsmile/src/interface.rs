@@ -1,53 +1,64 @@
-use colored::*
+use colored::*;
 use std::io::{self, Write};
 use std::thread;
 use std::time::Duration;
 
+fn typewriter(text: &str, speed: u64) {
+    for c in text.chars() {
+        print!("{}", c);
+        io::stdout().flush().unwrap();
+        thread::sleep(Duration::from_millis(speed));
+    }
+}
+
 pub fn boot_sequence() {
-    print!("\x1B[2J\x1B[1;1H"); // Clear Screen
+    print!("\x1B[2J\x1B[1;1H"); // Clear
     print!("\x1B[?25l"); // Hide cursor
     io::stdout().flush().unwrap();
-
-    println!("\n  {}\n", "eMo UNIFIED NEXUS".cyan().bold());
-    println!("  {}\n", "────────────────────────────────────────────".dimmed());
-
+    
+    println!("\n  {}", "◈ eMo UNIFIED NEXUS UPLINK".cyan().bold());
+    println!("  {}", "────────────────────────────────────────────".dimmed());
+    
     let steps = vec![
-        "INITIALIZING KERNEL",
-        "MAPPING MEMORY ARENA",
-        "ESTABLISHING NEURAL LINK",
-        "SYNCING AI MODELS",
-        "LOADING NEXUS INTERFACE",
+        "AUTHENTICATING ARCHITECT...",
+        "DECRYPTING KERNEL SEGMENTS...",
+        "INITIALIZING NEURAL INTERFACE...",
+        "SYNCHRONIZING DIMENSIONAL GATES...",
     ];
 
     for step in steps {
-        print!("  {} %-30s ", "◈".blue(), step); 
-        io::stdout().flush().unwrap();
+        print!("  {} ", "»".blue());
+        typewriter(step, 15);
         
-        // Static delay for stability
-        thread::sleep(Duration::from_millis(200));
+        // Stabilization animation
+        print!(" ");
+        let frames = vec!["◐", "◓", "◑", "◒"];
+        for i in 0..6 {
+            print!("\r  {} {} {}", "»".blue(), step, frames[i % 4].cyan());
+            io::stdout().flush().unwrap();
+            thread::sleep(Duration::from_millis(60));
+        }
         
-        println!("{}", "DONE".green().bold());
-        thread::sleep(Duration::from_millis(50));
+        println!("\r  {} {} {}", "»".blue(), step, "DONE".green().bold());
     }
 
-    print!("\x1B[?25h"); // Show cursor
+    // Final "Flash"
+    thread::sleep(Duration::from_millis(300));
+    print!("\x1B[2J\x1B[1;1H");
     io::stdout().flush().unwrap();
 
-    thread::sleep(Duration::from_millis(500));
     draw_dashboard();
+    print!("\x1B[?25h"); // Show cursor
+    io::stdout().flush().unwrap();
 }
 
 pub fn draw_dashboard() {
-    print!("\x1B[2J\x1B[1;1H"); // Clear
-    
     let width = 64;
     let border = "━".repeat(width);
     
-    println!("\n{}\
-", border.blue());
+    println!("\n{}", border.blue());
     println!("  {}            {}", "eMo UNIFIED NEXUS ENVIRONMENT".cyan().bold(), "v4.0.0".green());
-    println!("{}\
-", border.blue());
+    println!("{}", border.blue());
 
     println!("  {} {}    {} {}    {} {}", 
              "STATUS:".white().dimmed(), "STABLE".green().bold(), 
@@ -60,28 +71,23 @@ pub fn draw_dashboard() {
              "READY".blue(), 
              "READY".blue());
 
-    println!("{}\
-", border.blue());
+    println!("{}", border.blue());
     println!("  {} | {} | {}", 
              "status: refresh".black().on_cyan(),
              "help: guide".black().on_cyan(),
              "exit: logout".black().on_red());
-    println!("{}\
-", border.blue());
+    println!("{}\n", border.blue());
 }
 
 pub fn draw_nexus_help() {
-    println!("\n  {}\
-", "◈ NEXUS COMMAND GUIDE".cyan().bold());
-    println!("  {}\
-", "────────────────────────────────────────────".dimmed());
+    println!("\n  {}", "◈ NEXUS COMMAND GUIDE".cyan().bold());
+    println!("  {}", "────────────────────────────────────────────".dimmed());
     println!("  {:<10} Redraw the dashboard", "status".green());
     println!("  {:<10} Refresh environment", "clear".green());
     println!("  {:<10} Build HappyCry script", "happy".blue());
     println!("  {:<10} Run eMo script", "emo".blue());
     println!("  {:<10} Logout", "exit".red());
-    println!("  {}\
-", "────────────────────────────────────────────".dimmed());
+    println!("  {}\n", "────────────────────────────────────────────".dimmed());
 }
 
 pub fn prompt(pwd: &str) -> String {
