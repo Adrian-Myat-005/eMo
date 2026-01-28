@@ -43,9 +43,11 @@ pub fn draw_dashboard() {
     let width = 64;
     let border = "━".repeat(width);
     
-    println!("\n{}\n", border.blue());
+    println!("\n{}\
+", border.blue());
     println!("  {}            {}", "eMo UNIFIED NEXUS ENVIRONMENT".cyan().bold(), "v4.0.0".green());
-    println!("{}\n", border.blue());
+    println!("{}\
+", border.blue());
 
     println!("  {} {}    {} {}    {} {}", 
              "STATUS:".white().dimmed(), "STABLE".green().bold(), 
@@ -58,23 +60,28 @@ pub fn draw_dashboard() {
              "READY".blue(), 
              "READY".blue());
 
-    println!("{}\n", border.blue());
+    println!("{}\
+", border.blue());
     println!("  {} | {} | {}", 
              "status: refresh".black().on_cyan(),
              "help: guide".black().on_cyan(),
              "exit: logout".black().on_red());
-    println!("{}\n", border.blue());
+    println!("{}\
+", border.blue());
 }
 
 pub fn draw_nexus_help() {
-    println!("\n  {}\n", "◈ NEXUS COMMAND GUIDE".cyan().bold());
-    println!("  {}\n", "────────────────────────────────────────────".dimmed());
+    println!("\n  {}\
+", "◈ NEXUS COMMAND GUIDE".cyan().bold());
+    println!("  {}\
+", "────────────────────────────────────────────".dimmed());
     println!("  {:<10} Redraw the dashboard", "status".green());
     println!("  {:<10} Refresh environment", "clear".green());
     println!("  {:<10} Build HappyCry script", "happy".blue());
     println!("  {:<10} Run eMo script", "emo".blue());
     println!("  {:<10} Logout", "exit".red());
-    println!("  {}\n", "────────────────────────────────────────────".dimmed());
+    println!("  {}\
+", "────────────────────────────────────────────".dimmed());
 }
 
 pub fn prompt(pwd: &str) -> String {

@@ -1,157 +1,121 @@
 #!/bin/bash
 set -e
 
-# eMo Unified System Installer (Professional Redesign)
-# Targets: Linux, macOS, WSL
+# eMo "Cinema-Grade" Installer
+# Designed for high-end CLI feel.
 
 # Colors
+C_BCYAN='\033[1;36m'
 C_BLUE='\033[0;34m'
 C_GREEN='\033[0;32m'
-C_RED='\033[0;31m'
-C_CYAN='\033[0;36m'
 C_YELLOW='\033[1;33m'
-C_DIM='\033[2m'
 C_NC='\033[0m'
-C_BOLD='\033[1m'
+C_DIM='\033[2m'
 
-# CONFIG
 GITHUB_USER="Adrian-Myat-005"
 REPO_URL="https://github.com/$GITHUB_USER/eMo.git"
 INSTALL_DIR="$HOME/.emo"
 BIN_DIR="$INSTALL_DIR/bin"
 
-# UTILS
+# UI UTILS
 hide_cursor() { printf "\033[?25l"; }
 show_cursor() { printf "\033[?25h"; }
 
-# Smooth Block Progress
-draw_progress() {
-    local current=$1
-    local total=$2
-    local percent=$(( 100 * current / total ))
-    local bar_len=30
-    local filled=$(( bar_len * percent / 100 ))
-    local empty=$(( bar_len - filled ))
+# The High-FPS Spinner (Runs in background)
+spinner() {
+    local frames='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
+    while true; do
+        for (( i=0; i<${#frames}; i++ )); do
+            printf "\r  ${C_BCYAN}%s${C_NC}  ${C_DIM}%s${C_NC}" "${frames:$i:1}" "$1"
+            sleep 0.08
+        done
+    done
+}
 
+# Progress Bar
+draw_bar() {
+    local p=$1
+    local width=30
+    local filled=$(( p * width / 100 ))
     local bar=""
     for ((i=0; i<filled; i++)); do bar+="█"; done
-    for ((i=0; i<empty; i++)); do bar+="░"; done
-
-    printf "\n  ${C_DIM}Progress: [${C_NC}${C_CYAN}%s${C_NC}${C_DIM}] %3d%%${C_NC}\n" "$bar" "$percent"
+    for ((i=0; i<width-filled; i++)); do bar+=" "; done
+    printf "\n  ${C_DIM}[${C_NC}${C_BCYAN}%s${C_NC}${C_DIM}] ${C_NC}${C_BCYAN}%d%%${C_NC}\n" "$bar" "$p"
 }
 
-start_task() {
-    local label=$1
-    printf "  ${C_BLUE}◈${C_NC} %-35s" "$label"
+run_task() {
+    local label=$2
+    local percent=$3
+    
+    # Start spinner in background
+    spinner "$label" &
+    local SP_PID=$!
+    
+    # Run task
+    if eval "$1" > /dev/null 2>&1; then
+        kill $SP_PID >/dev/null 2>&1
+        printf "\r  ${C_GREEN}✔${C_NC}  %-40s ${C_GREEN}OK${C_NC}\n" "$label"
+        draw_bar "$percent"
+        # Move cursor up to prepare for next update if needed, but here we stack for clarity
+        printf "\033[A\033[A" # Go up 2 lines
+    else
+        kill $SP_PID >/dev/null 2>&1
+        printf "\r  ${C_RED}✘${C_NC}  %-40s ${C_RED}FAILED${C_NC}\n" "$label"
+        show_cursor
+        exit 1
+    fi
 }
 
-end_task_ok() {
-    printf "${C_GREEN}DONE${C_NC}\n"
-}
-
-end_task_err() {
-    printf "${C_RED}FAIL${C_NC}\n"
-}
-
-# --- START ---
+# --- BOOT ---
 trap show_cursor EXIT
 hide_cursor
 clear
 
-echo -e "\n${C_CYAN}${C_BOLD}  eMo UNIFIED SYSTEM INSTALLATION${C_NC}"
-echo -e "  ${C_DIM}════════════════════════════════════════════${C_NC}\n"
+echo -e "\n  ${C_BCYAN}eMo ECOSYSTEM :: DEPLOYMENT SEQUENCE${C_NC}"
+echo -e "  ${C_DIM}──────────────────────────────────────────${C_NC}\n"
 
-TOTAL_STEPS=6
-CURRENT_STEP=0
-
-# 1. Environment
-start_task "Checking Life Support (Rust)"
-if command -v cargo &> /dev/null; then
-    end_task_ok
-else
-    end_task_err
-    echo -e "\n  ${C_RED}Rust not found.${C_NC} Installing rustup..."
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-    source $HOME/.cargo/env
-fi
-CURRENT_STEP=1
-draw_progress $CURRENT_STEP $TOTAL_STEPS
-
-# 2. Clone
-start_task "Downloading Neural Patterns"
+# Create temp space
 TEMP_DIR=$(mktemp -d)
-if git clone "$REPO_URL" "$TEMP_DIR" --quiet; then
-    end_task_ok
-else
-    end_task_err
-    exit 1
-fi
-CURRENT_STEP=2
-draw_progress $CURRENT_STEP $TOTAL_STEPS
 
-# 3. Build SadSmile
-cd "$TEMP_DIR"
-start_task "Compiling Core Kernel (SadSmile)"
-if cargo build --release --manifest-path sadsmile/Cargo.toml --quiet; then
-    end_task_ok
-else
-    end_task_err
-    exit 1
-fi
-CURRENT_STEP=3
-draw_progress $CURRENT_STEP $TOTAL_STEPS
+# SEQUENCE
+# We use a bit of cursor math to keep it clean
+run_task "sleep 0.5" "Establishing Secure Uplink" 15
+printf "\n\n" # Make space for bar
 
-# 4. Build HappyCry
-start_task "Synthesizing Interface (HappyCry)"
-if cargo build --release --manifest-path happycry/Cargo.toml --quiet; then
-    end_task_ok
-else
-    end_task_err
-    exit 1
-fi
-CURRENT_STEP=4
-draw_progress $CURRENT_STEP $TOTAL_STEPS
+run_task "git clone \"$REPO_URL\" \"$TEMP_DIR\" --quiet" "Downloading Neural Patterns" 30
+printf "\n\n"
 
-# 5. Build eMo Compiler
-start_task "Engaging Logic Gates (Compiler)"
-if cargo build --release --manifest-path emo_compiler/Cargo.toml --quiet; then
-    end_task_ok
-else
-    end_task_err
-    exit 1
-fi
-CURRENT_STEP=5
-draw_progress $CURRENT_STEP $TOTAL_STEPS
+run_task "cargo build --release --manifest-path \"$TEMP_DIR/sadsmile/Cargo.toml\" --quiet" "Synthesizing Core (SadSmile)" 50
+printf "\n\n"
 
-# 6. Finalizing
-start_task "Optimizing Binaries & Path"
+run_task "cargo build --release --manifest-path \"$TEMP_DIR/happycry/Cargo.toml\" --quiet" "Calibrating Interface (HappyCry)" 75
+printf "\n\n"
+
+run_task "cargo build --release --manifest-path \"$TEMP_DIR/emo_compiler/Cargo.toml\" --quiet" "Engaging Logic Gates (Compiler)" 95
+printf "\n\n"
+
+# Install
 mkdir -p "$BIN_DIR"
-cp sadsmile/target/release/sadsmile "$BIN_DIR/ss"
-cp sadsmile/target/release/sadsmile "$BIN_DIR/nexus"
-cp happycry/target/release/happy "$BIN_DIR/happy"
-cp emo_compiler/target/release/emo_compiler "$BIN_DIR/emo"
+cp "$TEMP_DIR/sadsmile/target/release/sadsmile" "$BIN_DIR/ss"
+cp "$TEMP_DIR/sadsmile/target/release/sadsmile" "$BIN_DIR/nexus"
+cp "$TEMP_DIR/happycry/target/release/happy" "$BIN_DIR/happy"
+cp "$TEMP_DIR/emo_compiler/target/release/emo_compiler" "$BIN_DIR/emo"
 
-SHELL_CONFIG=""
-for f in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile"; do
-    if [ -f "$f" ]; then SHELL_CONFIG="$f"; break; fi
-done
-if [ -n "$SHELL_CONFIG" ]; then
-    if ! grep -q "$BIN_DIR" "$SHELL_CONFIG"; then
-        echo >> "$SHELL_CONFIG"
-        echo "export PATH=\"$BIN_DIR:\$PATH\"" >> "$SHELL_CONFIG"
-    fi
+# Path logic
+SHELL_CONFIG="$HOME/.bashrc"
+[ -f "$HOME/.zshrc" ] && SHELL_CONFIG="$HOME/.zshrc"
+if ! grep -q "$BIN_DIR" "$SHELL_CONFIG"; then
+    echo "export PATH=\"$BIN_DIR:\$PATH\"" >> "$SHELL_CONFIG"
 fi
-end_task_ok
-CURRENT_STEP=6
-draw_progress $CURRENT_STEP $TOTAL_STEPS
 
-# Cleanup
 rm -rf "$TEMP_DIR"
 
-echo -e "\n  ${C_GREEN}${C_BOLD}INSTALLATION COMPLETE${C_NC}"
-echo -e "  ${C_DIM}────────────────────────────────────────────${C_NC}"
-echo -e "  To activate, restart your terminal or run:"
-echo -e "  ${C_CYAN}source $SHELL_CONFIG${C_NC}\n"
-echo -e "  Type ${C_YELLOW}nexus${C_NC} to enter the eMo environment.\n"
+# FINISH
+printf "\r  ${C_GREEN}✔${C_NC}  %-40s ${C_GREEN}100%%${C_NC}\n" "System Integration Complete"
+draw_bar 100
+
+echo -e "\n  ${C_BCYAN}ACCESS GRANTED.${C_NC}"
+echo -e "  ${C_DIM}Restart terminal or run: source $SHELL_CONFIG${C_NC}"
+echo -e "  ${C_DIM}Launch environment with:${C_NC} ${C_YELLOW}nexus${C_NC}\n"
 
 show_cursor
